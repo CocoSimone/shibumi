@@ -18,6 +18,13 @@ void addu(registers_t* regs, u32 instr) {
   regs->gpr[RD(instr)] = result;
 }
 
+void addi(registers_t* regs, u32 instr) {
+  s32 rs = (s32)regs->gpr[RS(instr)];
+  s16 imm = (s16)(instr);
+  s32 result = rs + imm;
+  regs->gpr[RT(instr)] = result;
+}
+
 void addiu(registers_t* regs, u32 instr) {
   s32 rs = (s32)regs->gpr[RS(instr)];
   s16 imm = (s16)(instr);
@@ -25,16 +32,28 @@ void addiu(registers_t* regs, u32 instr) {
   regs->gpr[RT(instr)] = result;
 }
 
-void daddiu(registers_t* regs, u32 instr) {
-  s16 imm = (s16)(instr);
+void dadd(registers_t* regs, u32 instr) {
   s64 rs = regs->gpr[RS(instr)];
-  regs->gpr[RT(instr)] = rs + imm;
+  s64 rt = regs->gpr[RT(instr)];
+  regs->gpr[RD(instr)] = rs + rt;
 }
 
 void daddu(registers_t* regs, u32 instr) {
   s64 rs = regs->gpr[RS(instr)];
   s64 rt = regs->gpr[RT(instr)];
   regs->gpr[RD(instr)] = rs + rt;
+}
+
+void daddi(registers_t* regs, u32 instr) {
+  s16 imm = (s16)(instr);
+  s64 rs = regs->gpr[RS(instr)];
+  regs->gpr[RT(instr)] = rs + imm;
+}
+
+void daddiu(registers_t* regs, u32 instr) {
+  s16 imm = (s16)(instr);
+  s64 rs = regs->gpr[RS(instr)];
+  regs->gpr[RT(instr)] = rs + imm;
 }
 
 void div_(registers_t* regs, u32 instr) {
@@ -168,7 +187,7 @@ void lh(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 1) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   regs->gpr[RT(instr)] = (s64)(s16)read16(mem, regs, address, regs->old_pc);
@@ -178,7 +197,7 @@ void lw(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   s32 value = read32(mem, regs, address, regs->old_pc);
@@ -189,7 +208,7 @@ void ll(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   regs->LLBit = true;
@@ -223,7 +242,7 @@ void ld(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 7) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   s64 value = read64(mem, regs, address, regs->old_pc);
@@ -234,7 +253,7 @@ void lld(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 7) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   regs->LLBit = true;
@@ -274,7 +293,7 @@ void lhu(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 1) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   u16 value = read16(mem, regs, address, regs->old_pc);
@@ -285,7 +304,7 @@ void lwu(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdEL, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorLoad, 0, regs->old_pc);
   }
 
   u32 value = read32(mem, regs, address, regs->old_pc);
@@ -301,7 +320,7 @@ void sc(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
   
   if(regs->LLBit) {
@@ -316,7 +335,7 @@ void scd(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 7) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
   
   if(regs->LLBit) {
@@ -331,7 +350,7 @@ void sh(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 1) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
 
   write16(mem, regs, address, regs->gpr[RT(instr)], regs->old_pc);
@@ -341,7 +360,7 @@ void sw(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
   
   write32(mem, regs, address, regs->gpr[RT(instr)], regs->old_pc);
@@ -351,7 +370,7 @@ void sd(mem_t* mem, registers_t* regs, u32 instr) {
   u32 address = regs->gpr[RS(instr)] + (s16)instr;
   if ((address & 7) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
   
   write64(mem, regs, address, regs->gpr[RT(instr)], regs->old_pc);
@@ -407,12 +426,22 @@ void nor(registers_t* regs, u32 instr) {
   regs->gpr[RD(instr)] = ~(regs->gpr[RS(instr)] | regs->gpr[RT(instr)]);
 }
 
+void j(cpu_t* cpu, u32 instr) {
+  registers_t* regs = &cpu->regs;
+  u32 target = (instr & 0x3ffffff) << 2;
+  u32 address = (regs->old_pc & ~0xfffffff) | target;
+  if ((address & 3) != 0) {
+    handle_tlb_exception(regs, (s64)((s32)address));
+    fire_exception(regs, DataBusError, 0, regs->old_pc);
+  }
+
+  branch(cpu, true, address);
+}
+
 void jal(cpu_t* cpu, u32 instr) {
   registers_t* regs = &cpu->regs;
   regs->gpr[31] = regs->next_pc;
-  s64 target = (instr & 0x3ffffff) << 2;
-  s64 combined = (regs->old_pc & ~0xfffffff) | target;
-  branch(cpu, true, combined);
+  j(cpu, instr);
 }
 
 void jalr(cpu_t* cpu, u32 instr) {
@@ -558,24 +587,14 @@ void dsra32(registers_t* regs, u32 instr) {
   regs->gpr[RD(instr)] = result;
 }
 
-void j(cpu_t* cpu, u32 instr) {
-  registers_t* regs = &cpu->regs;
-  u32 target = (instr & 0x3ffffff) << 2;
-  u32 address = (regs->old_pc & ~0xfffffff) | target;
-  if ((address & 3) != 0) {
-    handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, DBE, 0, regs->old_pc);
-  }
-  
-  branch(cpu, true, address);
-}
+
 
 void jr(cpu_t* cpu, u32 instr) {
   registers_t* regs = &cpu->regs;
   u32 address = regs->gpr[RS(instr)];
   if ((address & 3) != 0) {
     handle_tlb_exception(regs, (s64)((s32)address));
-    fire_exception(regs, AdES, 0, regs->old_pc);
+    fire_exception(regs, AddressErrorStore, 0, regs->old_pc);
   }
   
   branch(cpu, true, address);
@@ -659,6 +678,6 @@ void mthi(registers_t* regs, u32 instr) {
 
 void trap(registers_t* regs, bool cond) {
   if(cond) {
-    fire_exception(regs, Tr, 0, regs->old_pc);
+    fire_exception(regs, Trap, 0, regs->old_pc);
   }
 }

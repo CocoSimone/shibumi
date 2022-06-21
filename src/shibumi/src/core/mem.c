@@ -141,12 +141,14 @@ u32 read32_(mem_t* mem, registers_t* regs, u32 vaddr, s64 pc, bool tlb) {
     case 0x00000000 ... 0x007FFFFF: return raccess(32, mem->rdram, paddr & RDRAM_DSIZE);
     case 0x04000000 ... 0x04000FFF: return raccess(32, mmio->rsp.dmem, paddr & DMEM_DSIZE);
     case 0x04001000 ... 0x04001FFF: return raccess(32, mmio->rsp.imem, paddr & IMEM_DSIZE);
-    case 0x04040000 ... 0x040FFFFF: case 0x04300000 ...	0x044FFFFF:
-    case 0x04500000 ... 0x048FFFFF: return read_mmio(mmio, paddr);
+    case 0x04040000 ... 0x040FFFFF: case 0x04100000 ... 0x041FFFFF:
+    case 0x04300000 ...	0x044FFFFF: case 0x04500000 ... 0x048FFFFF:
+      return read_mmio(mmio, paddr);
     case 0x10000000 ... 0x1FBFFFFF: return raccess(32, mem->cart, paddr & mem->rom_mask);
     case 0x1FC00000 ... 0x1FC007BF: return raccess(32, mem->pif_bootrom, paddr & PIF_BOOTROM_DSIZE);
     case 0x1FC007C0 ... 0x1FC007FF: return raccess(32, mem->pif_ram, paddr & PIF_RAM_DSIZE);
     case 0x00800000 ... 0x03FFFFFF: case 0x04002000 ... 0x0403FFFF:
+    case 0x04200000 ... 0x042FFFFF:
     case 0x04900000 ... 0x07FFFFFF: case 0x08000000 ... 0x0FFFFFFF:
     case 0x80000000 ... 0xFFFFFFFF: case 0x1FC00800 ... 0x7FFFFFFF: return 0;
     default: logfatal("Unimplemented %s[%08X] 32-bit read (PC = %016lX)\n", regions_str(paddr), paddr, regs->pc);
@@ -217,8 +219,10 @@ void write32_(mem_t* mem, registers_t* regs, u32 vaddr, u32 val, s64 pc, bool tl
     case 0x00000000 ... 0x007FFFFF: waccess(32, mem->rdram, paddr, val); break;
     case 0x04000000 ... 0x04000FFF: waccess(32, mmio->rsp.dmem, paddr & DMEM_DSIZE, val); break;
     case 0x04001000 ... 0x04001FFF: waccess(32, mmio->rsp.imem, paddr & IMEM_DSIZE, val); break;
-    case 0x04040000 ... 0x040FFFFF: case 0x04300000 ...	0x044FFFFF:
-    case 0x04500000 ... 0x048FFFFF: write_mmio(mem, regs, &mem->mmio.si, paddr, val); break;
+    case 0x04040000 ... 0x040FFFFF: case 0x04100000 ... 0x041FFFFF:
+    case 0x04300000 ...	0x044FFFFF: case 0x04500000 ... 0x048FFFFF:
+      write_mmio(mem, regs, &mem->mmio.si, paddr, val);
+      break;
     case 0x10000000 ... 0x13FF0013: break;
     case 0x13FF0014: {
       if(val < ISVIEWER_SIZE) {

@@ -7,22 +7,22 @@ typedef struct cpu_t {
 } cpu_t;
 
 typedef enum exception_code_t {
-  Int,
-  Mod,
-  TLBL,
-  TLBS,
-  AdEL,
-  AdES,
-  IBE,
-  DBE,
-  Sys,
-  Bp,
-  RI,
-  CpU,
-  Ov,
-  Tr,
-  FPE = 15,
-  WATCH = 23
+  Interrupt,
+  TLBModification,
+  TLBLoad,
+  TLBStore,
+  AddressErrorLoad,
+  AddressErrorStore,
+  InstructionBusError,
+  DataBusError,
+  Syscall,
+  Breakpoint,
+  ReservedInstruction,
+  CoprocessorUnusable,
+  Overflow,
+  Trap,
+  FloatingPointError = 15,
+  Watch = 23
 } exception_code_t;
 
 void init_cpu(cpu_t* cpu);

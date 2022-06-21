@@ -3,14 +3,6 @@
 #include <cop1.h>
 #include <stdbool.h>
 
-#define RD(x) (((x) >> 11) & 0x1F)
-#define RT(x) (((x) >> 16) & 0x1F)
-#define RS(x) (((x) >> 21) & 0x1F)
-#define FD(x) (((x) >>  6) & 0x1F)
-#define FT(x) RT(x)
-#define FS(x) RD(x)
-#define base(x) RS(x)
-
 typedef struct registers_t {
   s64 gpr[32];
   cop1_t cp1;

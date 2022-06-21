@@ -7,7 +7,7 @@ void fpu_decode(cpu_t* cpu, u32 instr) {
   registers_t* regs = &cpu->regs;
 
   if(!regs->cp0.Status.cu1) {
-    fire_exception(regs, CpU, 1, regs->old_pc);
+    fire_exception(regs, CoprocessorUnusable, 1, regs->old_pc);
     return;
   }
 

@@ -214,11 +214,11 @@ exception_code_t get_tlb_exception_code(tlb_error_t error, tlb_access_type_t acc
   switch(error) {
     case NONE: logfatal("Getting TLB exception with error NONE\n");
     case INVALID: case MISS:
-      return access_type == LOAD ? TLBL : TLBS;
+      return access_type == LOAD ? TLBLoad : TLBStore;
     case MODIFICATION:
-      return Mod;
+      return TLBModification;
     case DISALLOWED_ADDRESS:
-      return access_type == LOAD ? AdEL : AdES;
+      return access_type == LOAD ? AddressErrorLoad : AddressErrorStore;
     default:
       logfatal("Getting TLB exception for unknown error code! (%d)\n", error);
   }

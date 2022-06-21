@@ -8,19 +8,21 @@
 
 void init_rsp(rsp_t* rsp) {
   rsp->sp_status.raw = 1;
-  rsp->old_pc = rsp->pc = rsp->next_pc = 0;
+  rsp->old_pc = rsp->pc = 0;
+  rsp->next_pc = 1;
+  rsp->semaphore = false;
   memset(rsp->dmem, 0, DMEM_SIZE);
   memset(rsp->imem, 0, IMEM_SIZE);
 }
 
-void step_rsp(rsp_t* rsp) {
+void step_rsp(mi_t* mi, registers_t* regs, rsp_t* rsp, rdp_t* rdp) {
   if(!rsp->sp_status.halt) {
-    u16 pc = rsp->pc & 0x3FF;
-    u32 instr = raccess(32, rsp->imem, pc & IMEM_DSIZE);
-    rsp->old_pc = rsp->pc & 0x3ff;
-    rsp->pc = rsp->next_pc & 0x3ff;
-    rsp->next_pc++;
-    rsp_exec(rsp, instr);
+    rsp->gpr[0] = 0;
+    u32 instr = raccess(32, rsp->imem, rsp->pc & IMEM_DSIZE);
+    rsp->old_pc = rsp->pc & 0xFFF;
+    rsp->pc = rsp->next_pc & 0xFFF;
+    rsp->next_pc += 4;
+    rsp_exec(mi, regs, rsp, rdp, instr);
   }
 }
 
@@ -32,16 +34,10 @@ u32 sp_read(rsp_t* rsp, u32 addr) {
     case 0x0404000C: return rsp->sp_dma_wrlen.raw;
     case 0x04040010: return rsp->sp_status.raw;
     case 0x04040018: return 0;
-    case 0x04080000: return rsp->pc;
+    case 0x04080000: return rsp->pc & 0xFFF;
     default: logfatal("Unimplemented SP register read %08X\n", addr);
   }
 }
-
-#define CLEAR_SET(val, clear, set) do { \
-  if((clear) && (set)) logfatal("Can't be both clear and set\n"); \
-  if(clear) (val) = 0; \
-  if(set) (val) = 1; \
-} while(0)
 
 INLINE void sp_dma(sp_dma_len_t len, rsp_t* rsp, u8* dst, u8* src, bool is_rdram_dest) {
   u32 length = len.len + 1;
@@ -104,7 +100,12 @@ void sp_write(rsp_t* rsp, mem_t* mem, registers_t* regs, u32 addr, u32 value) {
       CLEAR_SET(rsp->sp_status.signal_6_set, write.clear_signal_6, write.set_signal_6);
       CLEAR_SET(rsp->sp_status.signal_7_set, write.clear_signal_7, write.set_signal_7);
     } break;
-    case 0x04080000: rsp->pc = value & 0x3FF; break;
+    case 0x04080000:
+      if(rsp->sp_status.halt) {
+        rsp->old_pc = rsp->pc;
+        rsp->pc = rsp->next_pc;
+        rsp->next_pc = value & 0xFFF;
+      } break;
     default: logfatal("Unimplemented SP register write %08X, val: %08X\n\n", addr, value);
   }
 }

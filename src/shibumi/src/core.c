@@ -16,10 +16,10 @@ void run_frame(core_t* core) {
   for (mmio->vi.current = 0; mmio->vi.current < 262; mmio->vi.current++) {
     for(int i = 0; i < 6000; i++) {
       step(&core->cpu, &core->mem);
-      step_rsp(&mmio->rsp);
-      step_rsp(&mmio->rsp);
-      step_rsp(&mmio->rsp);
-      step_rsp(&mmio->rsp);
+      step_rsp(&mmio->mi, &core->cpu.regs, &mmio->rsp, &mmio->rdp);
+      step_rsp(&mmio->mi, &core->cpu.regs, &mmio->rsp, &mmio->rdp);
+      step_rsp(&mmio->mi, &core->cpu.regs, &mmio->rsp, &mmio->rdp);
+      step_rsp(&mmio->mi, &core->cpu.regs, &mmio->rsp, &mmio->rdp);
     }
 
     if((mmio->vi.current & 0x3FE) == mmio->vi.intr) {

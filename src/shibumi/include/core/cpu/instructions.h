@@ -5,6 +5,7 @@ typedef struct cpu_t cpu_t;
 
 void add(registers_t* regs, u32 instr);
 void addu(registers_t* regs, u32 instr);
+void addi(registers_t* regs, u32 instr);
 void addiu(registers_t* regs, u32 instr);
 void andi(registers_t* regs, u32 instr);
 void and_(registers_t* regs, u32 instr);
@@ -14,7 +15,9 @@ void b(cpu_t* cpu, u32 instr, bool cond);
 void blink(cpu_t* cpu, u32 instr, bool cond);
 void bl(cpu_t* cpu, u32 instr, bool cond);
 void bllink(cpu_t* cpu, u32 instr, bool cond);
+void dadd(registers_t* regs, u32 instr);
 void daddu(registers_t* regs, u32 instr);
+void daddi(registers_t* regs, u32 instr);
 void daddiu(registers_t* regs, u32 instr);
 void ddiv(registers_t* regs, u32 instr);
 void ddivu(registers_t* regs, u32 instr);

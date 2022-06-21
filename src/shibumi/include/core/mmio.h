@@ -6,6 +6,7 @@
 #include <vi.h>
 #include <si.h>
 #include <rsp.h>
+#include <rdp.h>
 
 typedef struct mem_t mem_t;
 typedef struct registers_t registers_t;
@@ -18,6 +19,7 @@ typedef struct {
   si_t si;
   ai_t ai;
   rsp_t rsp;
+  rdp_t rdp;
 } mmio_t;
 
 void init_mmio(mmio_t* mmio);

@@ -40,3 +40,16 @@ typedef __int128_t s128;
 #define PIF_BOOTROM_DSIZE (PIF_BOOTROM_SIZE - 1)
 #define ISVIEWER_SIZE 0xFFDF
 #define ISVIEWER_DSIZE (ISVIEWER_SIZE - 1)
+
+#define RD(x) (((x) >> 11) & 0x1F)
+#define RT(x) (((x) >> 16) & 0x1F)
+#define RS(x) (((x) >> 21) & 0x1F)
+#define FD(x) (((x) >>  6) & 0x1F)
+#define FT(x) RT(x)
+#define FS(x) RD(x)
+#define base(x) RS(x)
+
+#define CLEAR_SET(val, clear, set) do { \
+  if(clear) (val) = 0; \
+  if(set) (val) = 1; \
+} while(0)
