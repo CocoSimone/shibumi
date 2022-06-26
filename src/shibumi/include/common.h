@@ -47,9 +47,28 @@ typedef __int128_t s128;
 #define FD(x) (((x) >>  6) & 0x1F)
 #define FT(x) RT(x)
 #define FS(x) RD(x)
-#define base(x) RS(x)
+#define BASE(x) RS(x)
 
 #define CLEAR_SET(val, clear, set) do { \
   if(clear) (val) = 0; \
   if(set) (val) = 1; \
 } while(0)
+
+typedef enum exception_code_t {
+  Interrupt,
+  TLBModification,
+  TLBLoad,
+  TLBStore,
+  AddressErrorLoad,
+  AddressErrorStore,
+  InstructionBusError,
+  DataBusError,
+  Syscall,
+  Breakpoint,
+  ReservedInstruction,
+  CoprocessorUnusable,
+  Overflow,
+  Trap,
+  FloatingPointError = 15,
+  Watch = 23
+} exception_code_t;

@@ -1,5 +1,5 @@
 #include <core.h>
-#include <utils.h>
+#include <parallelRDP_wrapper.h>
 
 void init_core(core_t* core) {
   init_cpu(&core->cpu);
@@ -25,5 +25,6 @@ void run_frame(core_t* core) {
     if((mmio->vi.current & 0x3FE) == mmio->vi.intr) {
       interrupt_raise(&mmio->mi, &core->cpu.regs, VI);
     }
+    update_screen_parallel_rdp();
   }
 }

@@ -71,6 +71,7 @@ typedef struct {
   vi_burst_t burst, vburst;
   u32 origin, width, current;
   u32 vsync, hsync, intr;
+  u32 hstart, vstart;
   int swaps;
   int num_halflines;
   int num_fields;

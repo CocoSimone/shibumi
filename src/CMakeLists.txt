@@ -3,18 +3,59 @@ project(core)
 file(GLOB_RECURSE SOURCES "shibumi/src/*.c")
 file(GLOB_RECURSE HEADERS "shibumi/include/*.h")
 
+file(GLOB_RECURSE parallel-rdp-cpp parallel-rdp-standalone/parallel-rdp/*.cpp)
+
 add_subdirectory(../external temp)
 
 add_library(core
   ${SOURCES}
   ${HEADERS}
-  emu.c
   emu.h
-)
+  emu.c
+  ${parallel-rdp-cpp}
+  parallel-rdp-standalone/vulkan/buffer.cpp
+  parallel-rdp-standalone/vulkan/buffer_pool.cpp
+  parallel-rdp-standalone/vulkan/command_buffer.cpp
+  parallel-rdp-standalone/vulkan/command_pool.cpp
+  parallel-rdp-standalone/vulkan/context.cpp
+  parallel-rdp-standalone/vulkan/cookie.cpp
+  parallel-rdp-standalone/vulkan/descriptor_set.cpp
+  parallel-rdp-standalone/vulkan/device.cpp
+  parallel-rdp-standalone/vulkan/event_manager.cpp
+  parallel-rdp-standalone/vulkan/fence.cpp
+  parallel-rdp-standalone/vulkan/fence_manager.cpp
+  parallel-rdp-standalone/vulkan/image.cpp
+  parallel-rdp-standalone/vulkan/memory_allocator.cpp
+  parallel-rdp-standalone/vulkan/pipeline_event.cpp
+  parallel-rdp-standalone/vulkan/query_pool.cpp
+  parallel-rdp-standalone/vulkan/render_pass.cpp
+  parallel-rdp-standalone/vulkan/sampler.cpp
+  parallel-rdp-standalone/vulkan/semaphore.cpp
+  parallel-rdp-standalone/vulkan/semaphore_manager.cpp
+  parallel-rdp-standalone/vulkan/shader.cpp
+  parallel-rdp-standalone/vulkan/texture_format.cpp
+  parallel-rdp-standalone/vulkan/wsi.cpp
+  parallel-rdp-standalone/vulkan/wsi.hpp
+  parallel-rdp-standalone/vulkan/wsi_timing.cpp
+  parallel-rdp-standalone/vulkan/wsi_timing.hpp
+  parallel-rdp-standalone/util/aligned_alloc.cpp
+  parallel-rdp-standalone/util/timer.cpp
+  parallel-rdp-standalone/util/timeline_trace_file.cpp
+  parallel-rdp-standalone/util/timeline_trace_file.hpp
+  parallel-rdp-standalone/util/thread_name.cpp
+  parallel-rdp-standalone/util/thread_name.hpp
+  parallel-rdp-standalone/util/logging.cpp
+  parallel-rdp-standalone/util/logging.hpp
+  parallel-rdp-standalone/util/thread_id.cpp
+  parallel-rdp-standalone/util/thread_id.hpp
+  parallelRDP_wrapper.cpp
+  parallelRDP_wrapper.h
+  # C
+  parallel-rdp-standalone/volk/volk.c)
 
 target_include_directories(core PUBLIC
-  ../external
   .
+  ../external
   shibumi/
   shibumi/include/
   shibumi/include/core/
@@ -25,6 +66,18 @@ target_include_directories(core PUBLIC
   shibumi/include/core/mem/mmio/
   shibumi/include/core/rsp/
   shibumi/include/utils/
+  parallel-rdp-standalone/parallel-rdp
+  parallel-rdp-standalone/volk
+  parallel-rdp-standalone/spirv-cross
+  parallel-rdp-standalone/vulkan
+  parallel-rdp-standalone/vulkan-headers/include
+  parallel-rdp-standalone/util
 )
 
-target_link_libraries(core PUBLIC contrib)
+target_link_libraries(core PUBLIC nfd)
+if(WIN32)
+  target_compile_definitions(core PUBLIC VK_USE_PLATFORM_WIN32_KHR)
+else()
+  target_link_libraries(core PUBLIC dl)
+endif()
+target_compile_definitions(core PUBLIC GRANITE_VULKAN_MT)

@@ -11,3 +11,5 @@ log.txt
 vgcore.*
 .vscode/
 *.dump
+*.vert
+*.frag

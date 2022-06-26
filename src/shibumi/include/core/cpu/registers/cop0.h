@@ -8,8 +8,6 @@ typedef struct mem_t mem_t;
 
 typedef struct registers_t registers_t;
 
-typedef enum exception_code_t exception_code_t;
-
 typedef union {
   u32 raw;
   struct {

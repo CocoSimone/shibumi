@@ -55,4 +55,4 @@ u32 dp_read(rdp_t* rdp, u32 addr);
 void dp_write(rdp_t* rdp, u32 addr, u32 val);
 void dp_status_write(dpc_status_read_t* status, u32 val);
 void rdp_run_command(mi_t* mi, registers_t* regs, rdp_t* rdp, rsp_t* rsp);
-void on_full_sync(rdp_t* rdp);
+void on_full_sync();

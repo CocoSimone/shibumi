@@ -4,6 +4,7 @@
 #include <rsp.h>
 #include <access.h>
 #include <intr.h>
+#include <parallelRDP_wrapper.h>
 
 static const int cmd_lens[64] = {
   2, 2, 2, 2, 2, 2, 2, 2, 8, 12, 24, 28, 24, 28, 40, 44,
@@ -91,11 +92,11 @@ void rdp_run_command(mi_t* mi, registers_t* regs, rdp_t* rdp, rsp_t* rsp) {
       }
 
       if(cmd >= 8) {
-
+        parallel_rdp_enqueue_command(cmd_len, &rdp->cmd_buf[buf_index]);
       }
 
       if (cmd == 0x29) {
-        on_full_sync(rdp);
+        on_full_sync();
         interrupt_raise(mi, regs,DP);
       }
 
@@ -112,6 +113,6 @@ void rdp_run_command(mi_t* mi, registers_t* regs, rdp_t* rdp, rsp_t* rsp) {
   }
 }
 
-void on_full_sync(rdp_t* rdp) {
-  logfatal("On full sync!\n");
+void on_full_sync() {
+  parallel_rdp_on_full_sync();
 }

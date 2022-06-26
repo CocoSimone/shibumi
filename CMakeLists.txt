@@ -28,4 +28,4 @@ endif()
 
 
 target_link_libraries(shibumi core ${FLAGS})
-target_compile_options(shibumi PUBLIC ${OPTIMIZATIONS} -mno-ms-bitfields -Wall -Wextra -Werror -Wfatal-errors)
+target_compile_options(shibumi PUBLIC ${OPTIMIZATIONS} -mno-ms-bitfields -Wall -Wextra -Werror)

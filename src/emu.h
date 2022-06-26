@@ -15,11 +15,21 @@ typedef struct {
   core_t core;
   nfdchar_t* romFile;
   u8* framebuffer;
-  SDL_GameController* controller;
+  SDL_GameController* gamepad;
   bool has_gamepad;
+  bool running;
 } emu_t;
 
-void destroy_emu(emu_t* emu);
-void init_emu(emu_t* emu);
-void emu_run(emu_t* emu);
-void emu_present(emu_t* emu);
+extern emu_t* emu;
+
+void destroy_emu();
+void init_emu();
+void emu_run();
+void emu_present();
+#ifdef __cplusplus
+extern "C" {
+#endif
+void emu_poll_input();
+#ifdef __cplusplus
+};
+#endif
