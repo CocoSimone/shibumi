@@ -27,4 +27,4 @@ target_include_directories(core PUBLIC
   shibumi/include/utils/
 )
 
-target_link_libraries(core PUBLIC nfd)
+target_link_libraries(core PUBLIC contrib)
